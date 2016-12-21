@@ -6,14 +6,51 @@ JsonRoutes.Middleware.use(
 
 
 
+JsonRoutes.add("post", "/fhir/MessageHeader", function (req, res, next) {
+  process.env.DEBUG && console.log('POST /fhir/MessageHeader/', req.body);
 
-JsonRoutes.add("get", "/fhir/MessageHeader/:id", function (req, res, next) { process.env.DEBUG && console.log('GET /fhir/MessageHeader/' + req.params.id);
+  console.log("Meteor.settings.private.disableOauth", Meteor.settings.private.disableOauth);
   res.setHeader("Access-Control-Allow-Origin", "*");
 
   var accessTokenStr = (req.params && req.params.access_token) || (req.query && req.query.access_token);
   var accessToken = oAuth2Server.collections.accessToken.findOne({accessToken: accessTokenStr});
 
-  if (accessToken || process.env.NOAUTH) {
+  if (accessToken || process.env.NOAUTH || Meteor.settings.private.disableOauth) {
+
+
+
+    process.env.TRACE && console.log('accessToken', accessToken);
+    if (accessToken) {
+      process.env.TRACE && console.log('accessToken.userId', accessToken.userId);
+    }
+    if (typeof SiteStatistics === "object") {
+      SiteStatistics.update({_id: "configuration"}, {$inc:{
+        "MessageHeaders.count.read": 1 }});
+    }
+
+    var messageHeaderId = MessageHeaders.insert(req.body); 
+    process.env.TRACE && console.log('messageHeaderId', messageHeaderId);
+
+    JsonRoutes.sendResult(res, {
+      code: 200,
+      data: messageHeaderData
+    });
+  } else {
+    JsonRoutes.sendResult(res, {
+      code: 401
+    });
+  }
+});
+
+
+JsonRoutes.add("get", "/fhir/MessageHeader/:id", function (req, res, next) {
+  process.env.DEBUG && console.log('GET /fhir/MessageHeader/' + req.params.id);
+  res.setHeader("Access-Control-Allow-Origin", "*");
+
+  var accessTokenStr = (req.params && req.params.access_token) || (req.query && req.query.access_token);
+  var accessToken = oAuth2Server.collections.accessToken.findOne({accessToken: accessTokenStr});
+
+  if (accessToken || process.env.NOAUTH || Meteor.setttings.app.disableOauth) {
     process.env.TRACE && console.log('accessToken', accessToken);
     process.env.TRACE && console.log('accessToken.userId', accessToken.userId);
 
