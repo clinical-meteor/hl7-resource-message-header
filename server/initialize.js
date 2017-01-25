@@ -155,10 +155,15 @@ Meteor.startup(function () {
       ]
     };
 
-    pharmaKit.inventory.forEach(function(messageHeader){
-      if (MessageHeaders.find({brandName: messageHeader.brandName}).count() === 0) {
-        MessageHeaders.insert(messageHeader);
-      }
+    pharmaKit.inventory.forEach(function(pharmaItem){
+      // if (MessageHeaders.find({brandName: messageHeader.brandName}).count() === 0) {
+      var messageHeader = {
+        resourceType: "MessageHeader",
+        timestamp: new Date(),
+        data: [ pharmaItem ]
+      };
+      MessageHeaders.insert(messageHeader);
+      // }
     });
 
 
