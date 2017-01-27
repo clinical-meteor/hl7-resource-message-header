@@ -28,7 +28,11 @@ JsonRoutes.add("post", "/fhir/MessageHeader", function (req, res, next) {
         "MessageHeaders.count.read": 1 }});
     }
 
-    var messageHeaderId = MessageHeaders.insert(req.body); 
+    if (!req.body.timestamp) {
+      req.body.timestamp = new Date();
+    }
+
+    var messageHeaderId = MessageHeaders.insert(req.body);
     process.env.TRACE && console.log('messageHeaderId', messageHeaderId);
 
     JsonRoutes.sendResult(res, {
