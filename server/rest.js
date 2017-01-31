@@ -37,7 +37,7 @@ JsonRoutes.add("post", "/fhir/MessageHeader", function (req, res, next) {
 
     JsonRoutes.sendResult(res, {
       code: 200,
-      data: messageHeaderData
+      data: messageHeaderId
     });
   } else {
     JsonRoutes.sendResult(res, {
