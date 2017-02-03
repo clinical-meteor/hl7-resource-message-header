@@ -64,13 +64,22 @@ JsonRoutes.add("get", "/fhir/MessageHeader/:id", function (req, res, next) {
     }
 
     var id = req.params.id;
-    var messageHeaderData = MessageHeaders.findOne(id); delete messageHeaderData._document;
-    process.env.TRACE && console.log('messageHeaderData', messageHeaderData);
+    var messageHeaderData = MessageHeaders.findOne(id);
 
-    JsonRoutes.sendResult(res, {
-      code: 200,
-      data: messageHeaderData
-    });
+    if (messageHeaderData) {
+      delete messageHeaderData._document;
+      process.env.TRACE && console.log('messageHeaderData', messageHeaderData);
+
+      JsonRoutes.sendResult(res, {
+        code: 200,
+        data: messageHeaderData
+      });
+    } else {
+      JsonRoutes.sendResult(res, {
+        code: 410
+      });
+    }
+
   } else {
     JsonRoutes.sendResult(res, {
       code: 401
@@ -101,14 +110,20 @@ JsonRoutes.add("get", "/fhir/MessageHeader", function (req, res, next) { process
     process.env.DEBUG && console.log('MessageHeaders.find(id)', MessageHeaders.find(databaseQuery).fetch()); // because we're using BaseModel and a _transform() function
     // MessageHeaders returns an object instead of a pure JSON document // it stores a shadow reference of the original doc, which we're removing here
     var messageHeaderData = MessageHeaders.find(databaseQuery).fetch();
-    messageHeaderData.forEach(function(patient){
-      delete patient._document;
-    });
+    if (messageHeaderData) {
+      messageHeaderData.forEach(function(patient){
+        delete patient._document;
+      });
 
-    JsonRoutes.sendResult(res, {
-      code: 200,
-      data: messageHeaderData
-    });
+      JsonRoutes.sendResult(res, {
+        code: 200,
+        data: messageHeaderData
+      });
+    } else {
+      JsonRoutes.sendResult(res, {
+        code: 410
+      });
+    }
   } else {
     JsonRoutes.sendResult(res, {
       code: 401
