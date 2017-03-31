@@ -1,9 +1,13 @@
+var fhirVersion = 'fhir-3.0.0';
 
-JsonRoutes.Middleware.use(
-    '/api/*',
+if(typeof oAuth2Server === 'object'){
+  // TODO:  double check that this is needed; and that the /api/ route is correct
+  JsonRoutes.Middleware.use(
+    // '/api/*',
+    '/fhir-3.0.0/*',
     oAuth2Server.oauthserver.authorise()   // OAUTH FLOW - A7.1
-);
-
+  );
+}
 
 
 JsonRoutes.add("post", "/fhir/MessageHeader", function (req, res, next) {
